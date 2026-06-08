@@ -1,0 +1,25 @@
+public List<LoanAccount> getOverdueLoans(List<LoanAccount> accounts) {
+
+    // FIX: Initialize result list to avoid NullPointerException on result.add()
+    List<LoanAccount> result = new ArrayList<>();
+
+    // FIX: Prevent NullPointerException if accounts list itself is null
+    if (accounts == null) {
+        return result;
+    }
+
+    for (LoanAccount account : accounts) {
+
+        // FIX: dueDate may be null for restructured accounts
+        if (account.getDueDate() != null &&
+            account.getDueDate().before(new Date())) {
+
+            // FIX: Only overdue accounts with positive outstanding balance should be added
+            if (account.getOutstandingBalance() > 0) {
+                result.add(account);
+            }
+        }
+    }
+
+    return result;
+}
