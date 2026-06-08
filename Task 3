@@ -1,0 +1,29 @@
+public class BankStatementBatchProcessor {
+
+    // FIX: int++ is not thread-safe in multithreaded execution.
+    // Multiple threads update processedCount simultaneously causing race conditions.
+    // AtomicInteger provides atomic increment operation.
+    private AtomicInteger processedCount = new AtomicInteger(0);
+
+    public void process(List<StatementRecord> records) {
+
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+
+        for (StatementRecord record : records) {
+
+            executor.submit(() -> {
+                processRecord(record);
+
+                // FIX: Atomic increment prevents lost updates
+                processedCount.incrementAndGet();
+            });
+        }
+
+        executor.shutdown();
+        executor.awaitTermination(5, TimeUnit.MINUTES);
+    }
+
+    public int getProcessedCount() {
+        return processedCount.get();
+    }
+}
